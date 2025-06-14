@@ -1,0 +1,37 @@
+//testing I2C for my ADS1115
+//Testing alamat I2C
+//Untuk TA @IlhamGods
+
+#include <Wire.h>
+
+void setup() {
+  Wire.begin();
+  Serial.begin(9600);
+  while (!Serial); // Untuk beberapa board
+  Serial.println("\nI2C Scanner");
+}
+
+void loop() {
+  byte error, address;
+  int nDevices = 0;
+
+  for(address = 1; address < 127; address++ ) {
+    Wire.beginTransmission(address);
+    error = Wire.endTransmission();
+
+    if (error == 0) {
+      Serial.print("I2C device found at address 0x");
+      if (address<16)
+        Serial.print("0");
+      Serial.print(address,HEX);
+      Serial.println("  !");
+      nDevices++;
+    }
+  }
+  if (nDevices == 0)
+    Serial.println("Ga ada perangkat I2C yang ditemukan. Cek wiring lu peler!");
+  else
+    Serial.println("done\n");
+
+  delay(500); 
+}

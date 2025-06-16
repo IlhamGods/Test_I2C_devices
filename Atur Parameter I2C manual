@@ -1,0 +1,57 @@
+// Atur parameter I2C manual  
+// by @IlhamGods
+
+#include <Wire.h>
+#include <Adafruit_ADS1X15.h>
+
+Adafruit_ADS1115 ads;
+
+// Pin I2C ESP32-S3 (sesuaikan dengan board Anda)
+#define I2C_SDA 8
+#define I2C_SCL 9
+
+void setup() {
+  Serial.begin(115200);
+  delay(1000);
+
+  // Inisialisasi I2C dengan parameter manual
+  Wire.begin(I2C_SDA, I2C_SCL, 100000); // 100kHz clock speed
+  Wire.setTimeout(5000); // 5 detik timeout
+  
+  // Atau coba dengan:
+  // Wire.setClock(100000); // Set clock speed ke 100kHz
+  
+  Serial.println("Mencoba mendeteksi ADS1115...");
+  
+  // Coba inisialisasi dengan timeout lebih lama
+  if (!ads.begin(0x48, &Wire)) {
+    Serial.println("ADS1115 tidak terdeteksi di alamat 0x48!");
+    
+    // Coba alamat lain
+    Serial.println("Mencoba alamat 0x49...");
+    if (!ads.begin(0x49, &Wire)) {
+      Serial.println("ADS1115 tidak terdeteksi di alamat 0x49!");
+      while (1);
+    } else {
+      Serial.println("ADS1115 terdeteksi di alamat 0x49!");
+    }
+  } else {
+    Serial.println("ADS1115 terdeteksi di alamat 0x48!");
+  }
+
+  ads.setGain(GAIN_TWOTHIRDS);
+  Serial.println("ADS1115 siap digunakan");
+}
+
+void loop() {
+  int16_t adcValue = ads.readADC_SingleEnded(0);
+  float voltage = (adcValue * 6.144) / 32767.0;
+
+  Serial.print("ADC: ");
+  Serial.print(adcValue);
+  Serial.print(" => ");
+  Serial.print(voltage, 4);
+  Serial.println(" V");
+  
+  delay(1000);
+}
